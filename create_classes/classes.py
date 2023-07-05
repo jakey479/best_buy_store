@@ -6,7 +6,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(os.path.dirname(CURRENT_DIR))
 sys.path.append(ROOT_DIR)
 
-from best_buy_store.best_buy_app.helper_functions import helpers
+from best_buy_store.helper_functions import helpers
 
 
 class Product:

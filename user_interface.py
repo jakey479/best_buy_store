@@ -69,7 +69,7 @@ def run_store():
                 user_order, user_order_quantity = return_user_order_and_quantity()
                 if not all([user_order, user_order_quantity]):
                     break
-                print(f'\nOrder purchase total is: ${BEST_BUY.order([(user_order, user_order_quantity)])}')
+                print(f'\nOrder purchase total is: {BEST_BUY.order([(user_order, user_order_quantity)])}')
         elif user_input == 4:
             print('\nSee you next time!\n')
             break
