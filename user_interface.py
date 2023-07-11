@@ -3,9 +3,10 @@ from helper_functions import helpers
 
 PRODUCT_LIST = [classes.Product("MacBook Air M2", price=1450, quantity=100),
                 classes.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-                classes.Product("Google Pixel 7", price=500, quantity=250)
-                ]
-
+                classes.Product("Google Pixel 7", price=500, quantity=250),
+                classes.NonPhysicalProduct("Windows License", price=125),
+                classes.LimitedProduct("Shipping", price=10, quantity=250, max_per_order=1)
+               ]
 BEST_BUY = classes.Store(PRODUCT_LIST)
 
 

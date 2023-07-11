@@ -48,4 +48,9 @@ def test_buy_more_than_product_inventory():
     assert product1.buy(101) is None
 
 
+def test_create_NonPhysicalProduct():
+    product1 = classes.NonPhysicalProduct('a_product', 100, )
+
+
+
 pytest.main()

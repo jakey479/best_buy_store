@@ -1,14 +1,3 @@
-import os
-import sys
-# Appending the root directory of this project to the sys.path so that it can call
-# sibling packages
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-ROOT_DIR = os.path.dirname(os.path.dirname(CURRENT_DIR))
-sys.path.append(ROOT_DIR)
-
-from best_buy_store.helper_functions import helpers
-
-
 class Product:
     def __init__(self, name, price, quantity):
         if not name:
@@ -55,11 +44,41 @@ class Product:
 
 
 class NonPhysicalProduct(Product):
-    def __init__(self, name, price, quantity):
+    def __init__(self, name, price, quantity=0):
         super().__init__(name, price, quantity)
-        self.quantity = 0
+
+    def show_self(self) -> str:
+        return f'{self.name}, price: {self.price}, quantity: Unlimited!'
+
+    def buy(self, quantity):
+        return Product.return_total_price(self, quantity)
 
 
+class LimitedProduct(Product):
+    def __init__(self, name, price, quantity, max_per_order):
+        super().__init__(name, price, quantity)
+        self.max_per_order = max_per_order
+
+    def show_self(self) -> str:
+        if self.max_per_order == 0:
+            return f'{self.name}, price: {self.price}, quantity: {self.quantity},' \
+               f' Max order limit reached'
+
+        return f'{self.name}, price: {self.price}, quantity: {self.quantity},' \
+               f' Only {self.max_per_order} available per order'
+
+    def buy(self, quantity):
+        if quantity <= self.max_per_order and self.check_if_active():
+            self.quantity -= quantity
+            self.max_per_order -= quantity
+            if self.max_per_order == 0:
+                self.is_active = False
+            return Product.return_total_price(self, quantity)
+        elif quantity > self.max_per_order:
+            print(f'\nIneligible to add to order')
+            return
+        print('Please tell the store to activate this product first')
+        return
 
 
 class Store:
