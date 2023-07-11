@@ -35,20 +35,10 @@ def return_user_order_and_quantity():
         print('\n*** To exit out of order enter, leave order and quantity options empty ***')
         user_order = input('\nWhich item number would you like to order: ')
         user_order_quantity = input('\nHow many would you like to order: ')
-        if not user_order and not user_order_quantity:
-            #this one will not return an error
-            return False, False
-        if user_order.isnumeric() and user_order_quantity.isnumeric():
-            user_order_in_inventory = helpers.is_input_in_inventory(store_inventory, int(user_order))
-            if user_order_in_inventory:
-                product = store_inventory[int(user_order)]
-                product_quantity = int(user_order_quantity)
-                return product, product_quantity
-            else:
-                print('\n*** PLEASE ENTER A VALID ORDER AND ORDER QUANTITY OR ELSE EXIT ORDER ***')
-                continue
-        print('\n*** PLEASE ENTER A VALID ORDER AND ORDER QUANTITY OR ELSE EXIT ORDER ***')
-        continue
+        user_order_resp = helpers.validate_user_order_and_quantity(store_inventory, user_order, user_order_quantity)
+        if not user_order_resp:
+            return None
+        return user_order_resp
 
 
 def run_store():
@@ -66,10 +56,17 @@ def run_store():
         elif user_input == 3:
             exit_order = False
             while not exit_order:
-                user_order, user_order_quantity = return_user_order_and_quantity()
-                if not all([user_order, user_order_quantity]):
+                user_response = return_user_order_and_quantity()
+                if not user_response:
                     break
-                print(f'\nOrder purchase total is: {BEST_BUY.order([(user_order, user_order_quantity)])}')
+                if type(user_response) == str:
+                    print(user_response)
+                    continue
+                user_order, user_order_quantity = user_response
+                order_response = BEST_BUY.order([(user_order, user_order_quantity)])
+                if not order_response:
+                    continue
+                print(f'\norder total is ${order_response}')
         elif user_input == 4:
             print('\nSee you next time!\n')
             break

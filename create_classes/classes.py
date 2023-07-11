@@ -11,8 +11,10 @@ from best_buy_store.helper_functions import helpers
 
 class Product:
     def __init__(self, name, price, quantity):
-        if not any([price, quantity, name]):
-            raise ValueError('Please remember to initialize all values')
+        if not name:
+            raise ValueError('Please remember to initialize a valid name')
+        elif quantity < 0 or price < 0:
+            raise ValueError('Please don\'t initialize with negative numbers')
         self.name = name
         self.price = float(price)
         self.quantity = int(quantity)
@@ -36,13 +38,28 @@ class Product:
     def check_if_active(self) -> bool:
         return self.is_active
 
+    def return_total_price(self, quantity):
+        return self.price * quantity
+
     def buy(self, quantity):
-        if quantity <= self.quantity and self.check_if_active():
+        if quantity <= self.get_quantity() and self.check_if_active():
             self.quantity -= quantity
-            return helpers.return_total_price(self, quantity)
-        else:
+            if self.quantity == 0:
+                self.is_active = False
+            return Product.return_total_price(self, quantity)
+        elif quantity > self.get_quantity():
             print(f'\nYOU ARE TRYING TO BUY MORE THAN WE HAVE IN STOCK. PLEASE BUY AN AMOUNT LESS THAN OR EQUAL TO {self.quantity}')
-            return False
+            return
+        print('Please tell the store to activate this product first')
+        return
+
+
+class NonPhysicalProduct(Product):
+    def __init__(self, name, price, quantity):
+        super().__init__(name, price, quantity)
+        self.quantity = 0
+
+
 
 
 class Store:
@@ -88,8 +105,8 @@ class Store:
         for product, order_quantity in shopping_list:
             returned_order = product.buy(order_quantity)
             if not returned_order:
-                return 'not able to go through'
-            total_price += product.price * order_quantity
+                return
+            total_price += returned_order
         return total_price
 
     def create_store_inventory(self):
