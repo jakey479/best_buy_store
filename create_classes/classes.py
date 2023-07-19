@@ -161,18 +161,16 @@ class Product:
         :param quantity:
         :return:
         """
-        if quantity <= self.get_quantity() and self.check_if_active():
+        if quantity <= self.get_quantity():
             self.quantity -= quantity
             if self.quantity == 0:
                 self.is_active = False
             if self.promotion:
                 return self.promotion.apply_promotion(self, quantity)
             return Product.return_total_price(self, quantity)
-        elif quantity > self.get_quantity():
+        else:
             print(f'\nYOU ARE TRYING TO BUY MORE THAN WE HAVE IN STOCK. PLEASE BUY AN AMOUNT LESS THAN OR EQUAL TO {self.quantity}')
             return
-        print('Please tell the store to activate this product first')
-        return
 
 
 class NonPhysicalProduct(Product):
@@ -208,9 +206,7 @@ class LimitedProduct(Product):
             return Product.return_total_price(self, quantity)
         elif quantity > self.max_per_order:
             print(f'\nIneligible to add to order')
-            return
-        print('Please tell the store to activate this product first')
-        return
+            return None
 
 
 class Store:
@@ -244,11 +240,11 @@ class Store:
         inventory_dictionary = {}
         product_number = 0
         for inventory_object in self.products:
-            if inventory_object.check_if_active:
-                inventory_dictionary[product_number] = inventory_object
-                product_number += 1
+            inventory_dictionary[product_number] = inventory_object
+            product_number += 1
         return inventory_dictionary
 
-    def print_store_inventory(self, store_inventory):
+    def print_active_store_inventory(self, store_inventory):
         for product_number, product_object in store_inventory.items():
-            print(f'\n{product_number}: {product_object.show_self()}')
+            if product_object.is_active:
+                print(f'\n{product_number}: {product_object.show_self()}')

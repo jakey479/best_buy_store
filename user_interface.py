@@ -1,6 +1,6 @@
 from create_classes import classes
 from helper_functions import helpers
-from typing import Optional, Union, Tuple
+from typing import Optional, Tuple
 
 PRODUCT_LIST = [classes.Product("MacBook Air M2", price=1450, quantity=100),
                 classes.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
@@ -57,14 +57,14 @@ def return_user_order_and_quantity() -> Optional[Tuple[classes.Product, int]]:
     store_inventory = BEST_BUY.create_store_inventory()
     valid_input = False
     while not valid_input:
-        BEST_BUY.print_store_inventory(store_inventory)
+        BEST_BUY.print_active_store_inventory(store_inventory)
         print('\n*** To exit out of order enter, leave order and quantity options empty ***')
         user_order = input('\nWhich item number would you like to order: ')
         user_order_quantity = input('\nHow many would you like to order: ')
         if not user_order and not user_order_quantity:
             return None
         is_valid_order = helpers.is_user_order_valid(store_inventory, user_order)
-        if is_valid_order:
+        if is_valid_order and user_order_quantity.isnumeric():
             return store_inventory[int(user_order)], int(user_order_quantity)
         print('\n*** PLEASE ENTER A VALID ORDER AND ORDER QUANTITY OR ELSE EXIT ORDER ***')
         continue
@@ -79,7 +79,7 @@ def run_store():
         show_interface()
         user_input = return_user_input()
         if user_input == 1:
-            BEST_BUY.print_store_inventory(store_inventory)
+            BEST_BUY.print_active_store_inventory(store_inventory)
         elif user_input == 2:
             print(f'\nThere are {BEST_BUY.get_total_quantity()} items in the store!')
         elif user_input == 3:
