@@ -48,9 +48,22 @@ def test_buy_more_than_product_inventory():
     assert product1.buy(101) is None
 
 
-def test_create_NonPhysicalProduct():
-    product1 = classes.NonPhysicalProduct('a_product', 100, )
+def test_buy1_get1_free_works():
+    product1 = classes.Product('a_product', 27.56, 100)
+    promo = classes.Buy2Get1FreePromo('buy1get1free')
+    assert promo.apply_promotion(product1, 7) == 110.24
 
+
+def test_percentage_promo_works():
+    product1 = classes.Product('a_product', 23.45, 100)
+    promo = classes.PercentageOffPromo('percentage discount', 35)
+    assert promo.apply_promotion(product1, 35) == 533.4
+
+
+def test_second_half_off_promo_works():
+    product1 = classes.Product('a_product', 23.45, 100)
+    promo = classes.HalfOffSecondItemPromo('percentage discount')
+    assert promo.apply_promotion(product1, 7) == 128.96
 
 
 pytest.main()

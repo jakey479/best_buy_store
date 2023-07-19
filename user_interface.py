@@ -6,7 +6,18 @@ PRODUCT_LIST = [classes.Product("MacBook Air M2", price=1450, quantity=100),
                 classes.Product("Google Pixel 7", price=500, quantity=250),
                 classes.NonPhysicalProduct("Windows License", price=125),
                 classes.LimitedProduct("Shipping", price=10, quantity=250, max_per_order=1)
-               ]
+                ]
+
+thirty_percent = classes.PercentageOffPromo("30% off!", discount_percentage=30)
+second_one_free = classes.Buy2Get1FreePromo("Second One Free!")
+second_half_price = classes.HalfOffSecondItemPromo("Second Half price!")
+
+
+PRODUCT_LIST[0].set_promotion(thirty_percent)
+PRODUCT_LIST[1].set_promotion(second_one_free)
+PRODUCT_LIST[2].set_promotion(second_half_price)
+
+
 BEST_BUY = classes.Store(PRODUCT_LIST)
 
 

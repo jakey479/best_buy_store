@@ -1,3 +1,73 @@
+from abc import ABC, abstractmethod
+import decimal
+
+import os
+import sys
+
+# Appending the root directory of this project to the sys.path so that it can call
+# sibling packages
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(os.path.dirname(CURRENT_DIR))
+sys.path.append(ROOT_DIR)
+
+from best_buy_store.helper_functions import helpers
+
+
+class Promotion(ABC):
+    """
+    set up default methods for promotion cubclass
+    """
+    def __init__(self, promotion_type):
+        self.promotion_type = promotion_type
+
+    @abstractmethod
+    def apply_promotion(self, product, quantity):
+        pass
+
+
+class PercentageOffPromo(Promotion):
+
+    def __init__(self, promotion_type, discount_percentage):
+        super().__init__(promotion_type)
+        self.discount_percentage = discount_percentage
+
+    def apply_promotion(self, product, quantity):
+        discounted_price = helpers.return_discount_price(self.discount_percentage, product.price)
+        return float(discounted_price * quantity)
+
+
+class Buy2Get1FreePromo(Promotion):
+    def apply_promotion(self, product, quantity):
+        price_with_discount = 0
+        if quantity >= 2:
+            last_number_in_range = list(range(1, quantity + 1))[-1]
+            for count in range(1, quantity + 1):
+                if count % 2 == 0:
+                    price_with_discount += product.price
+            if last_number_in_range % 2 == 1:
+                price_with_discount += product.price
+            return price_with_discount
+        price_with_discount += product.price
+        return price_with_discount
+
+
+class HalfOffSecondItemPromo(Promotion):
+
+    def apply_promotion(self, product, quantity):
+        decimal.getcontext().rounding = decimal.ROUND_HALF_UP
+        price_with_discount = 0
+        if quantity >= 2:
+            for count in range(1, quantity + 1):
+                if count % 2 == 1:
+                    price_with_discount += product.price
+                    price_with_discount = float(round(decimal.Decimal(str(price_with_discount)), 2))
+                if count % 2 == 0:
+                    price_with_discount += helpers.return_discount_price(50, product.price)
+            return price_with_discount
+        price_with_discount += product.price
+        return price_with_discount
+
+
 class Product:
     def __init__(self, name, price, quantity):
         if not name:
@@ -8,6 +78,13 @@ class Product:
         self.price = float(price)
         self.quantity = int(quantity)
         self.is_active = False
+        self.promotion = None
+
+    def set_promotion(self, promotion):
+        self.promotion = promotion
+
+    def get_promotion(self):
+        return self.promotion
 
     def get_quantity(self) -> float:
         return self.quantity
@@ -22,6 +99,8 @@ class Product:
         self.is_active = False
 
     def show_self(self) -> str:
+        if self.promotion:
+            return f'{self.name}, price: {self.price}, quantity: {self.quantity}, promotion: {self.promotion.promotion_type}'
         return f'{self.name}, price: {self.price}, quantity: {self.quantity}'
 
     def check_if_active(self) -> bool:
@@ -35,6 +114,8 @@ class Product:
             self.quantity -= quantity
             if self.quantity == 0:
                 self.is_active = False
+            if self.promotion:
+                return self.promotion.apply_promotion(self, quantity)
             return Product.return_total_price(self, quantity)
         elif quantity > self.get_quantity():
             print(f'\nYOU ARE TRYING TO BUY MORE THAN WE HAVE IN STOCK. PLEASE BUY AN AMOUNT LESS THAN OR EQUAL TO {self.quantity}')

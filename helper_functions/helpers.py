@@ -1,3 +1,14 @@
+import decimal
+
+
+def return_discount_price(discount_percentage, price):
+    decimal.getcontext().rounding = decimal.ROUND_HALF_UP
+    discount = price * discount_percentage / 100
+    rounded_discount_amount = float(round(decimal.Decimal(str(discount)), 2))
+    discounted_price = price - rounded_discount_amount
+    return discounted_price
+
+
 def is_list(argument):
     if type(argument) is list:
         return True
@@ -21,6 +32,4 @@ def validate_user_order_and_quantity(store_inventory, user_order, user_order_qua
             product_quantity = int(user_order_quantity)
             return product, product_quantity
     return '\n*** PLEASE ENTER A VALID ORDER AND ORDER QUANTITY OR ELSE EXIT ORDER ***'
-
-
 
