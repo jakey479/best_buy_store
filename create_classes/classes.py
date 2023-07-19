@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import decimal
+from typing import Optional
 
 import os
 import sys
@@ -15,37 +16,61 @@ from best_buy_store.helper_functions import helpers
 
 class Promotion(ABC):
     """
-    set up default methods for promotion cubclass
+    set up default methods for promotion subclasses
     """
-    def __init__(self, promotion_type):
+    def __init__(self, promotion_type: str):
+        """
+        initialize promotion_type instance variable to be a string value
+        :param promotion_type:
+        """
         self.promotion_type = promotion_type
 
     @abstractmethod
     def apply_promotion(self, product, quantity):
+        """
+        return the price of a product after applying a promotion
+        :param product: product object
+        :param quantity: amount to buy
+        :return:
+        """
         pass
 
 
 class PercentageOffPromo(Promotion):
 
-    def __init__(self, promotion_type, discount_percentage):
+    def __init__(self, promotion_type: str, discount_percentage: int):
+        """
+        :param promotion_type:
+        :param discount_percentage:
+        """
         super().__init__(promotion_type)
         self.discount_percentage = discount_percentage
 
-    def apply_promotion(self, product, quantity):
+    def apply_promotion(self, product, quantity) -> float:
+        """
+        user a helper function to store the price of a product minus a percentage discount and multiply that
+        number by the amount of product bought
+        :param product:
+        :param quantity:
+        :return: final price of discounted items bought
+        """
         discounted_price = helpers.return_discount_price(self.discount_percentage, product.price)
         return float(discounted_price * quantity)
 
 
 class Buy2Get1FreePromo(Promotion):
-    def apply_promotion(self, product, quantity):
+    def apply_promotion(self, product, quantity) -> float:
+        """
+        charge for every product starting at 1 and incrementing by 2 (e.g 1,3,5,7)
+        :param product:
+        :param quantity:
+        :return:
+        """
         price_with_discount = 0
         if quantity >= 2:
-            last_number_in_range = list(range(1, quantity + 1))[-1]
             for count in range(1, quantity + 1):
-                if count % 2 == 0:
+                if count % 2 == 1:
                     price_with_discount += product.price
-            if last_number_in_range % 2 == 1:
-                price_with_discount += product.price
             return price_with_discount
         price_with_discount += product.price
         return price_with_discount
@@ -53,7 +78,14 @@ class Buy2Get1FreePromo(Promotion):
 
 class HalfOffSecondItemPromo(Promotion):
 
-    def apply_promotion(self, product, quantity):
+    def apply_promotion(self, product, quantity) -> float:
+        """
+        charge full price for every product starting at 1 and incrementing by 2 and charge half price
+        for every second product, incrementing by 2
+        :param product:
+        :param quantity:
+        :return:
+        """
         decimal.getcontext().rounding = decimal.ROUND_HALF_UP
         price_with_discount = 0
         if quantity >= 2:
@@ -81,10 +113,18 @@ class Product:
         self.promotion = None
 
     def set_promotion(self, promotion):
+        """
+
+        :param promotion: creates a 'has a' relationship between a promo object and a product object by linking
+        the instance variable self.promotion to a promotion object. Allows the product object to call the
+        apply_promotion method belonging to a promotion instance variable as well as access the name of the
+        promotion object the promotion objects' promotion_type instance variable
+        :return:
+        """
         self.promotion = promotion
 
-    def get_promotion(self):
-        return self.promotion
+    def get_promotion(self) -> Optional[str]:
+        return print(f'{self.promotion.promotion_type}')
 
     def get_quantity(self) -> float:
         return self.quantity
@@ -99,6 +139,10 @@ class Product:
         self.is_active = False
 
     def show_self(self) -> str:
+        """
+        show self with promotion if promotion is True and show self without promotion if promotion is not true
+        :return:
+        """
         if self.promotion:
             return f'{self.name}, price: {self.price}, quantity: {self.quantity}, promotion: {self.promotion.promotion_type}'
         return f'{self.name}, price: {self.price}, quantity: {self.quantity}'
@@ -106,10 +150,17 @@ class Product:
     def check_if_active(self) -> bool:
         return self.is_active
 
-    def return_total_price(self, quantity):
+    def return_total_price(self, quantity) -> float:
         return self.price * quantity
 
-    def buy(self, quantity):
+    def buy(self, quantity) -> Optional[float]:
+        """
+        buy product if quantity is less or equal to available product inventory and if product is active.
+        Return promo'd price if object has a promotion, normal price if not. If Quantity is less than product
+        inventory, print an informative message and return None. if item is not
+        :param quantity:
+        :return:
+        """
         if quantity <= self.get_quantity() and self.check_if_active():
             self.quantity -= quantity
             if self.quantity == 0:
@@ -175,29 +226,9 @@ class Store:
     def get_total_quantity(self) -> int:
         total_quantity = 0
         for product in self.products:
-            total_quantity += product.get_quantity()
-        return total_quantity
-
-    def list_active_product_info(self):
-        """must call .show method on all objects within self.products value
-        :return:
-        """
-        product_info_list = []
-        for product in self.products:
             if product.check_if_active():
-                product_info_list.append(product.show_self())
-        if len(product_info_list) == 0:
-            return 'Store currently has no active products. Please activate products or add products to store'
-        return product_info_list
-
-    def list_active_product_objects(self):
-        """must call .show method on all objects within self.products value
-        :return:
-        """
-        active_product_list = []
-        for product in self.products:
-            active_product_list.append(product)
-        return active_product_list
+                total_quantity += product.get_quantity()
+        return total_quantity
 
     def order(self, shopping_list):
         # Buys the products and returns the total price of the order.
@@ -213,8 +244,9 @@ class Store:
         inventory_dictionary = {}
         product_number = 0
         for inventory_object in self.products:
-            inventory_dictionary[product_number] = inventory_object
-            product_number += 1
+            if inventory_object.check_if_active:
+                inventory_dictionary[product_number] = inventory_object
+                product_number += 1
         return inventory_dictionary
 
     def print_store_inventory(self, store_inventory):
