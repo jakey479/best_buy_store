@@ -161,6 +161,9 @@ class Product:
         :param quantity:
         :return:
         """
+        if not self.is_active:
+            print('\nItem not available')
+            return
         if quantity <= self.get_quantity():
             self.quantity -= quantity
             if self.quantity == 0:
@@ -248,3 +251,4 @@ class Store:
         for product_number, product_object in store_inventory.items():
             if product_object.is_active:
                 print(f'\n{product_number}: {product_object.show_self()}')
+
